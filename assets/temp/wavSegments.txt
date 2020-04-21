@@ -1,0 +1,5 @@
+file '/Users/mattwilkins/GDrive/GP/Lessons/Assumptions Matter/assets/temp/male barn swallow bout_1_.mp4' duration 3.6
+file '/Users/mattwilkins/GDrive/GP/Lessons/Assumptions Matter/assets/temp/male barn swallow bout_2_.mp4' duration 3.6
+file '/Users/mattwilkins/GDrive/GP/Lessons/Assumptions Matter/assets/temp/male barn swallow bout_3_.mp4' duration 3.6
+file '/Users/mattwilkins/GDrive/GP/Lessons/Assumptions Matter/assets/temp/male barn swallow bout_4_.mp4' duration 3.6
+file '/Users/mattwilkins/GDrive/GP/Lessons/Assumptions Matter/assets/temp/male barn swallow bout_5_.mp4' duration 3.6
