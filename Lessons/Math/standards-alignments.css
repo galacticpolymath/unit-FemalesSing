@@ -1,0 +1,77 @@
+*{
+font-family: 'Montserrat', sans-serif;
+}
+
+hr{
+  border-width: 0;
+  height:2px;
+  background-color: rgba(112, 112, 112, 1);
+
+}
+
+.standards-container{
+  border: rgba(112, 112, 112, 1) 4px solid;
+/*   background-color: #e9e9e9; */
+}
+
+.subject-container {
+  padding: 1.5rem;
+  border: black 4px solid;
+  border-radius: 0;
+  margin: 3rem 1.5rem;
+}
+
+
+.subject-container.Math{
+  border-color: rgb(219, 65, 37);
+  background-color: rgba(219, 65, 37,.10);
+}
+
+.subject-container.Math .subject-title{
+  background-color: rgb(219, 65, 37);
+}
+
+
+.subject-container.Social-Studies{
+  border-color: rgb(99, 58, 154);
+  background-color: rgba(99, 58, 154,.1);
+}
+.subject-container.Social-Studies .subject-title{
+  background-color: rgb(99, 58, 154);
+}
+
+
+.subject-container.Science{
+  border-color: rgb( 183, 152, 232);
+  background-color: rgba( 183, 152, 232, .1);
+}
+.subject-container.Science .subject-title{
+  background-color: rgb( 183, 152, 232);
+}
+
+
+.subject-container.ELA{
+  border-color: rgb(236, 161, 77);
+  background-color: rgba(236, 161, 77,.1);
+}
+.subject-container.ELA .subject-title{
+  background-color: rgb(236, 161, 77);
+}
+
+
+
+.subject-title{
+  margin: -1.5rem  -1.5rem 0;
+  padding: 0 1.5rem;
+  color: white;
+}
+
+.subject-standards > *{
+  padding: .5rem 1.5rem;
+  margin: 3rem 0;
+  border: NULL;
+  border-radius: 0;
+  background-color: white;
+}
+
+
