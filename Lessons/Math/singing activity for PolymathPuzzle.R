@@ -3,10 +3,15 @@ if(!require(pacman)){install.packages("pacman");require(pacman)}
 #Install/load tons of packages
 p_load(ggplot2,tidyverse,lubridate,ggpubr,reshape2,colorspace,patchwork)
 
+
+
+
 #bring in code for enciphering graph elements
-source("https://raw.githubusercontent.com/drwilkins/ciphR/master/ciphR/enciphR.R")
-#bring in GP styling
-# source("https://raw.githubusercontent.com/galacticpolymath/ggGalactic/master/ggGalactic.R")
+# source("https://raw.githubusercontent.com/drwilkins/ciphR/master/ciphR/enciphR.R")
+source("scripts/dotplot.R")
+source("scripts/enciphR.R")
+p_install_gh("galacticpolymath/GPpub")
+library(GPpub)
 
 
 #--------------------------
@@ -39,33 +44,44 @@ malecol= "#6812D1" #gpPal[4]
 k$sex<-factor(k$sex,labels=c("Female","Male"))
 G0<-ggplot(data=k,aes(x=RecDt,y=N,col=sex,shape=sex))+geom_point(size=3,stroke=.5,alpha=1)+geom_point(aes(fill=sex),size=3,alpha=.3)+scale_x_date()+xlab("Recording Date")+ylab("# Songs Recorded")+geom_smooth(method="loess",aes(group=sex),span=2,size=1.1,show.legend=F,se=F)+scale_shape_manual(values=gpShps[1:2])+scale_fill_manual(values=c(malecol,femalecol))+scale_colour_manual(values=c(malecol,femalecol))
 
-
-#Level A puzzle
+################################
+#Level 0 puzzle (Original fig)
 #quartz()
 (Gl1 <- G0+ggGalactic()+guides(shape = guide_legend(override.aes = list(size = 4)))+theme(legend.title=element_text(face="bold")))+ggtitle("Figure 1. A Mysterious Scatter Plot")
 
-ggsave("PolymathPuzzle_level0_original.png",width=10,height=6)
+ggsave("assets/PolymathPuzzle_level0_original.png",width=10,height=6)
 
 Gl1+ggtitle("")+theme(plot.background = element_blank())
-ggsave("scatterplot_forLessonBanner.png",bg="transparent",width=9,height=6)
+ggsave("assets/scatterplot_forLessonBanner.png",bg="transparent",width=9,height=6)
+
+#OG fig w/ galactic white font for presentation Day3
+Gl1+ggtitle("")+ggGalactic(font.col = gpPal[[1]]$hex[7])+theme(plot.background = element_blank())
+ggsave("assets/scatterplot_forDay3Presentation.png",bg="transparent",width=9,height=6)
 
 
+################################
 #Level A&B puzzle: (+1) shift -1 decipher
 (Gl2 <- ggCiphR(Gl1,1))+ggtitle("Figure 1. A Mysterious Scatter Plot")
-ggsave("PolymathPuzzle_levelA&B_coded-axis-labels(-1_Decipher).png",width=10,height=6)
+ggsave("assets/PolymathPuzzle_levelA&B_coded-axis-labels(-1_Decipher).png",width=10,height=6)
 
+################################
 #Level C (-3) shift +3 decipher
 (Gl3 <- ggCiphR(Gl1,-3)+ggtitle("Figure 1. A Mysterious Scatter Plot"))
-ggsave("PolymathPuzzle_levelC_difficult-coded-axis-labels(+3_Decipher).png",width=10,height=6)
+ggsave("assets/PolymathPuzzle_levelC_difficult-coded-axis-labels(+3_Decipher).png",width=10,height=6)
 
+################################
 # #Level 4 
-# K <- k
-# enciphR("sex",3)
-# K$sex<-factor(k$sex,labels=sapply(levels(k$sex),enciphR,3))
-# 
+K <- k
+enciphR("sex",3)
+K$sex<-factor(k$sex,labels=sapply(levels(k$sex),enciphR,3))
+
 (Gl4.0<-ggplot(data=K,aes(x=RecDt,y=N,col=sex,shape=sex))+geom_point(size=3,stroke=.5,alpha=1)+geom_point(aes(fill=sex),size=3,alpha=.3)+scale_x_date()+xlab("Recording Date")+ylab("# Songs Recorded")+geom_smooth(method="loess",aes(group=sex),span=2,size=1.1,show.legend=F,se=F)+scale_shape_manual(values=gpShps[1:2])+scale_fill_manual(values=c(malecol,femalecol))+scale_colour_manual(values=c(malecol,femalecol))+ggGalactic()+guides(shape = guide_legend(override.aes = list(size = 5)))+ggtitle("Figure 1. A Mysterious Scatter Plot"))
 (Gl4<-ggCiphR(Gl4.0,3))
-ggsave("PolymathPuzzle_levelD_Impossible-coded-axis-labels+key.png",width=10,height=6)
+ggsave("assets/PolymathPuzzle_levelD_Impossible-coded-axis-labels+key.png",width=10,height=6)
+
+
+
+
 
 
 
@@ -81,25 +97,69 @@ names(k3_anon)[1]<-"BandNumber"
 k3_anon$sex=factor(k3$sex,levels=c("Female","Male") ,labels=c("one","two"))
 write.csv(k3_anon[,c(1,3,2)],"data/Table 1.SongOutputByID&Sex.csv",row.names = F)
 
+
+##################################
+# Make anonymized dotplots --------------------------------------------------
+#sexes lumped
 #Make graphs for the answer key
 xLabel="Number of Songs Recorded (N)"
 yLabel="Count of Birds Who\nSang N Songs"
 #blend color with white. Loooks niiiice ::)
-fillCol=mixcolor( alpha=.7,hex2RGB(gpPal[1]),RGB(1,1,1)) %>% hex() #for pretty graphic
-fillCol2<-gpPal2[2] #for high contrast (opaque)
+fillCol=mixcolor( alpha=.7,hex2RGB(fillCol2),RGB(1,1,1)) %>% hex() #for pretty graphic
+fillCol2<-gpPal[[2]]$hex[3] #for high contrast (opaque)
+
+
+#both sexes clustered
+(bH<-ggplot(k3_anon,aes(x=N))+geom_histogram(breaks=seq(0,100,10),col="black",fill="gray50")+ggGalactic()+scale_x_continuous(breaks=seq(0,100,10),minor_breaks=seq(0,100,10)))+scale_y_continuous(minor_breaks=seq(0,100,1))
+dotplot(bH,size=2.5)+xlab(xLabel)+ylab(yLabel)+scale_y_continuous(breaks=seq(0,5,1),labels=0:5,limits=c(0,5))
+ggsave("assets/anonymized_dotplot_both-sexes.jpg")
+
+#Same, but only first 3 females with 0 songs for Day 3 presentation
+(bH.0<-ggplot(subset(k3_anon,N==0),aes(x=N))+geom_histogram(breaks=seq(0,100,10),col="black",fill="gray50")+ggGalactic()+scale_x_continuous(breaks=seq(0,100,10),minor_breaks=seq(0,100,10)))+scale_y_continuous(minor_breaks=seq(0,100,1))
+dotplot(bH.0,size=2.5)+xlab(xLabel)+ylab(yLabel)+scale_y_continuous(breaks=seq(0,5,1),labels=0:5,limits=c(0,5))
+ggsave("assets/anonymized_dotplot_both-sexes_just-0-N.jpg")
+
+#Same, but only first 3 females with 0 or 1 songs for Day 3 presentation
+(bH.1<-ggplot(subset(k3_anon,N%in%c(0,1)),aes(x=N))+geom_histogram(breaks=seq(0,100,10),col="black",fill="gray50")+ggGalactic()+scale_x_continuous(breaks=seq(0,100,10),minor_breaks=seq(0,100,10)))+scale_y_continuous(minor_breaks=seq(0,100,1))
+dotplot(bH.1,size=2.5)+xlab(xLabel)+ylab(yLabel)+scale_y_continuous(breaks=seq(0,5,1),labels=0:5,limits=c(0,5))
+ggsave("assets/anonymized_dotplot_both-sexes_just-0or1-N.jpg")
+
+#sexes colored
+(bH2<-ggplot(k3_anon %>% filter(sex=="one"),aes(x=N,fill=sex))+geom_histogram(breaks=seq(0,100,10),col="black",fill=fillCol2)+ggGalactic()+scale_x_continuous(breaks=seq(0,100,10),minor_breaks=seq(0,100,10)))+scale_y_continuous(minor_breaks=seq(0,100,1))+scale_fill_manual(values=fillCol2)+xlab(xLabel)+ylab(yLabel)
+
+#Just sex "one", missing last point
+(bH2b<-ggplot(k3_anon %>% filter(sex=="one",N<10),aes(x=N,fill=sex))+geom_histogram(breaks=seq(0,100,10),col="black",fill=fillCol2)+ggGalactic()+scale_x_continuous(breaks=seq(0,100,10),minor_breaks=seq(0,100,10)))+scale_y_continuous(minor_breaks=seq(0,100,1))+scale_fill_manual(values=fillCol2)+xlab(xLabel)+ylab(yLabel)
+dotplot(bH2b,size=2.5)+xlab(xLabel)+ylab(yLabel)+scale_y_continuous(breaks=seq(0,5,1),labels=0:5,limits=c(0,5))+scale_x_continuous(breaks=seq(0,100,10),minor_breaks=seq(0,100,10),limits=c(0,100))
+ggsave("assets/anonymized_dotplot_sex-one_sans-highest-N.jpg")
+
+#Just sex "one" all points
+dotplot(bH2,size=2.5)+xlab(xLabel)+ylab(yLabel)+scale_y_continuous(breaks=seq(0,5,1),labels=0:5,limits=c(0,5))+scale_x_continuous(breaks=seq(0,100,10),minor_breaks=seq(0,100,10),limits=c(0,100))
+ggsave("assets/anonymized_dotplot_sex-one.jpg")
+
+(bH3<-ggplot(k3_anon %>% filter(sex=="two"),aes(x=N,fill=sex))+geom_histogram(breaks=seq(0,100,10),col="black",fill=gpPal[[1]]$hex[2])+ggGalactic()+scale_fill_manual(values=fillCol2)+xlab(xLabel)+ylab(yLabel))
+
+dotplot(bH3,size=2.5)+xlab(xLabel)+ylab(yLabel)+scale_y_continuous(breaks=seq(0,5,1),labels=0:5,limits=c(0,5))+scale_x_continuous(breaks=seq(0,100,10),minor_breaks=seq(0,100,10))
+ggsave("assets/anonymized_dotplot_sex-two.jpg")
+
+
 
 ######################################
 # LESSON BANNER Histogram version
-ggplot(k3,aes(x=N))+geom_histogram(breaks=seq(0,100,10),col=outlineCol,fill=fillCol,size=.6)+facet_grid(~sex)+ggGalactic()+labs(x=xLabel,y=yLabel,title="Figure 2. Histograms of Singing Output by Sex")+theme(strip.text=element_text(colour=1,size=22))+theme(panel.grid=element_line(size=2),plot.background=element_blank(),strip.background=element_rect(fill="gray92"),strip.text=element_text(colour=gpPal[6],size=22))+scale_x_continuous(minor_breaks=seq(0,100,10),breaks=seq(0,100,10))+scale_y_continuous(minor_breaks=seq(0,20,1),breaks=seq(0,20,5))+ggtitle("")+scale_x_continuous(breaks=seq(0,100,20),minor_breaks=NULL)+scale_y_continuous(breaks=seq(0,14,5),minor_breaks=NULL)+theme(panel.grid=element_line(size=.5))
-ggsave("songOutputHistograms_bothplots_for banner.png",width=9,height=6,bg="transparent")
+outlineCol=gpPal[[2]]$hex[1]
+ggplot(k3,aes(x=N))+geom_histogram(breaks=seq(0,100,10),col=outlineCol,fill=fillCol,size=.6)+facet_grid(~sex)+ggGalactic()+labs(x=xLabel,y=yLabel,title="Figure 2. Histograms of Singing Output by Sex")+theme(strip.text=element_text(colour=1,size=22))+theme(panel.grid=element_line(size=2),plot.background=element_blank(),strip.background=element_rect(fill="gray92"),strip.text=element_text(colour=gpPal[[1]]$hex[6],size=22))+scale_x_continuous(minor_breaks=seq(0,100,10),breaks=seq(0,100,10))+scale_y_continuous(minor_breaks=seq(0,20,1),breaks=seq(0,20,5))+ggtitle("")+scale_x_continuous(breaks=seq(0,100,20),minor_breaks=NULL)+scale_y_continuous(breaks=seq(0,14,5),minor_breaks=NULL)+theme(panel.grid=element_line(size=.5))
+ggsave("assets/songOutputHistograms_bothplots_for banner.png",width=9,height=6,bg="transparent")
 ######################################
 
 
-g2<-ggplot(k3,aes(x=N))+geom_histogram(breaks=seq(0,100,10),col=1,fill=fillCol2,size=.6)+facet_grid(~sex)+ggGalactic()+labs(x=xLabel,y=yLabel,title="Figure 2. Histograms of Singing Output by Sex")+theme(strip.text=element_text(colour=1,size=22))+theme(panel.grid=element_line(size=2),plot.background=element_blank(),strip.background=element_rect(fill="gray92"),strip.text=element_text(colour=gpPal[6],size=22))+scale_x_continuous(minor_breaks=seq(0,100,10),breaks=seq(0,100,10))+scale_y_continuous(minor_breaks=seq(0,20,1),breaks=seq(0,20,5))
-g2+facet_grid(~sex,labeller=labeller(sex=c(Female="Sex 'One'",Male="Sex 'Two'")))
-#The both plots (coded facets)
+g2<-ggplot(k3,aes(x=N))+geom_histogram(breaks=seq(0,100,10),col=1,fill=fillCol2,size=.6)+facet_grid(~sex)+ggGalactic()+labs(x=xLabel,y=yLabel,title="Figure 2. Histograms of Singing Output by Sex")+theme(strip.text=element_text(colour=1,size=22))+theme(panel.grid=element_line(size=2),plot.background=element_blank(),strip.background=element_rect(fill="gray92"),strip.text=element_text(colour=gpPal[[1]]$hex[6],size=22) ) +scale_x_continuous(minor_breaks=seq(0,100,10),breaks=seq(0,100,10))+scale_y_continuous(minor_breaks=seq(0,20,1),breaks=seq(0,20,5))
+# both histograms (not coded facets)
+ggsave("assets/songOutputHistograms_bothplots_M+F.png",width=12,height=6,bg="transparent")
 
-ggsave("songOutputHistograms_bothplots_coded facets.png",width=12,height=6,bg="transparent")
+
+both_hist_anon<-g2+facet_grid(~sex,labeller=labeller(sex=c(Female="Sex 'One'",Male="Sex 'Two'")))
+#The both plots (coded facets)
+both_hist_anon
+ggsave("assets/songOutputHistograms_bothplots_coded facets.png",width=12,height=6,bg="transparent")
 
 
 
@@ -110,16 +170,16 @@ ggsave("songOutputHistograms_bothplots_coded facets.png",width=12,height=6,bg="t
 
 g2+
   facet_grid(~sex,labeller=labeller(sex=c(Female="Sex 'One' (Females)",Male="Sex 'Two' (Males)")))+scale_fill_manual(values="red")
-ggsave("songOutputHistograms_bothplots+answer.png",width=12,height=6)
+ggsave("assets/songOutputHistograms_bothplots+answer.png",width=12,height=6)
 
 
 #Blank Plot
 ggplot(k3,aes(x=N))+geom_histogram(breaks=seq(0,100,10),col="transparent",fill="transparent")+facet_grid(~sex,labeller=labeller(sex=c(Female="Sex 'One'",Male="Sex 'Two'")))+ggGalactic()+labs(x=xLabel,y=yLabel,title="Figure 2. Histograms of Singing Output by Sex")+theme(panel.grid=element_line(size=1),strip.background=element_rect(fill="gray90"),strip.text=element_text(colour=1,size=22))+scale_x_continuous(minor_breaks=seq(0,100,10),breaks=seq(0,100,10))+scale_y_continuous(minor_breaks=seq(0,20,1),breaks=seq(0,20,5))
-ggsave("songOutputHistograms_blank.png",width=12,height=6)
+ggsave("assets/songOutputHistograms_blank.png",width=12,height=6)
 
 #Blank Female, Male printed
-ggplot(k3,aes(x=N,col=sex,fill=sex))+geom_histogram(breaks=seq(0,100,10),show.legend=F)+facet_grid(~sex,labeller=labeller(sex=c(Female="Sex 'One'",Male="Sex 'Two'")))+ggGalactic()+labs(x=xLabel,y=yLabel,title="Figure 2. Histograms of Singing Output by Sex")+theme(panel.grid=element_line(size=1),strip.background=element_rect(fill="gray90"),strip.text=element_text(colour=1,size=22))+scale_x_continuous(minor_breaks=seq(0,100,10),breaks=seq(0,100,10))+scale_y_continuous(minor_breaks=seq(0,20,1),breaks=seq(0,20,5))+scale_fill_manual(values=c("transparent",gpPal2[2]))+scale_colour_manual(values=c("transparent",1))
-ggsave("songOutputHistograms_blankFem.png",width=12,height=6)
+ggplot(k3,aes(x=N,col=sex,fill=sex))+geom_histogram(breaks=seq(0,100,10),show.legend=F)+facet_grid(~sex,labeller=labeller(sex=c(Female="Sex 'One'",Male="Sex 'Two'")))+ggGalactic()+labs(x=xLabel,y=yLabel,title="Figure 2. Histograms of Singing Output by Sex")+theme(panel.grid=element_line(size=1),strip.background=element_rect(fill="gray90"),strip.text=element_text(colour=1,size=22))+scale_x_continuous(minor_breaks=seq(0,100,10),breaks=seq(0,100,10))+scale_y_continuous(minor_breaks=seq(0,20,1),breaks=seq(0,20,5))+scale_fill_manual(values=c("transparent",gpPal[[2]]$hex[2]))+scale_colour_manual(values=c("transparent",1))
+ggsave("assets/songOutputHistograms_blankFem.png",width=12,height=6)
 
 
 
@@ -127,10 +187,18 @@ ggsave("songOutputHistograms_blankFem.png",width=12,height=6)
 ############
 # Make combined histogram, scatterplot
 
+## vertical orientation
+# encoded histogram
 #vertical orientation
+(Gl1+ggtitle("Figure 1: A Scatter Plot")+theme(plot.title=element_text(size=18,face="plain")))/(both_hist_anon+ggtitle("Figure 2: Histograms")+theme(plot.title=element_text(size=18,face="plain")))
+ggsave("assets/combined_vert_scatterplot+hist_coded-sexes.png",width=12,height=12)
+
+
+#no sex-codes
 (Gl1+ggtitle("Figure 1: A Scatter Plot")+theme(plot.title=element_text(size=18,face="plain")))/(g2+ggtitle("Figure 2: Histograms")+theme(plot.title=element_text(size=18,face="plain")))
-ggsave("combined_vert_scatterplot+hist.png",width=12,height=12)
+ggsave("assets/combined_vert_scatterplot+hist.png",width=12,height=12)
 
 #horizontal orientation
 (Gl1+ggtitle("Figure 1: A Scatter Plot")+theme(plot.title=element_text(size=18,face="plain")))+(g2+scale_x_continuous(minor_breaks=seq(0,100,10),breaks=seq(0,100,20))+ggtitle("Figure 2: Histograms")+theme(plot.title=element_text(size=18,face="plain")))
-ggsave("combined_horiz_scatterplot+hist.png",width=18,height=6)
+ggsave("assets/combined_horiz_scatterplot+hist.png",width=18,height=6)
+
